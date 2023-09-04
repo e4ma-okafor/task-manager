@@ -1,0 +1,21 @@
+.taskContainer { 
+    margin: 0 auto;   
+    width: 60%;   
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;     
+}
+
+.formInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.cancelBtn {
+    border: none;
+    font-size: 30px;
+    background: none;
+    cursor: pointer;
+    font-weight: lighter;
+}
