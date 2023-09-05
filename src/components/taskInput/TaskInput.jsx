@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './taskInput.css'
 import propTypes from 'prop-types';
 
 const TaskInput = ({ initialData, handleAddTask, onCancel, isEditing }) => {
     let taskData = {name: '', date: '', desc: ''};
-    const [task, setTask] = useState(initialData || taskData);    
+
+    const [task, setTask] = useState(initialData || taskData); 
+    const [focusInput, setFocusInput] = useState(false);
+
+    useEffect(() => {
+        if(isEditing) {
+            setFocusInput(true);
+        }
+    }, [isEditing]);
     
     const onSubmit = (e) => {
-        e.preventDefault();
-        console.log('Task details: ', task)        
+        e.preventDefault();              
 
         if (!task.name.trim()) {
             alert('Please enter task details')
@@ -45,6 +52,7 @@ const TaskInput = ({ initialData, handleAddTask, onCancel, isEditing }) => {
                      placeholder='Enter task name'
                      value={task.name}
                      onChange={(e) => setTask({...task, name: e.target.value})}
+                     autoFocus={focusInput}
                     />
                 </div>
                 <div className='d-flex flex-column mb-3 gap-2'>
