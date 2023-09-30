@@ -1,39 +1,67 @@
-import { useState } from 'react';
+import { useReducer, useState } from 'react';
 import './App.css'
 import TaskInput from './components/taskInput/TaskInput';
 import Task from './components/taskDetails';
+import { reducer } from './reducer';
+
+const defaultState = {
+    tasks: [],
+    isModalOpen: false,    
+    selectedTaskIndex: null
+};
 
 const App = () => {
-    const today = new Date(); 
+    const today = new Date();
 
-    const [showTaskInput, setShowTaskInput] = useState(false);
-    const [allTasks, setAllTasks] = useState([]);    
-    const [taskToEdit, setTaskToEdit] = useState(null);    
-
-    const handleAddTask = (task) => {
-        if (taskToEdit !== null) {
-            const updatedTasks = allTasks.map((t, index) => (index === taskToEdit ? task : t));
-            setAllTasks(updatedTasks);
-            setTaskToEdit(null);
-        } else {
-            setAllTasks([...allTasks, task]);
-        }
-        setShowTaskInput(false);
+    const taskData = {
+        name: '',
+        details: '',
+        dueDate: ''
     }
 
-    const handleEditTask = (index) => {
-        setTaskToEdit(index);
-        setShowTaskInput(true);
+    const [state, dispatch] = useReducer(reducer, defaultState);
+    const [newTask, setNewTask] = useState(taskData);
+    const [isEditing, setIsEditing] = useState(false);   
+
+    const openModal = () => {
+        setIsEditing(false);
+        dispatch({ type: 'OPEN_MODAL' });               
+    }     
+
+    const closeModal = () => {
+        setIsEditing(false);
+        dispatch({ type: 'CLOSE_MODAL' });
+    }
+
+    const addTask = () => {
+        if (isEditing) {
+            dispatch({ type: 'UPDATE_TASK', payload: newTask })
+        } else {
+            dispatch({ type: 'ADD_TASK', payload: newTask });
+        }
+        setNewTask(taskData);
+        setIsEditing(false);
+    }
+
+    const editTask = (taskIndex, task) => {
+        setIsEditing(true);
+        dispatch({ type: 'EDIT_TASK', payload: taskIndex });
+        setNewTask(task);
     };
 
-    const handleDeleteTask = (index) => {
-        const updatedTasks = allTasks.filter((_,i) => i !== index);
-        setAllTasks(updatedTasks);
+    const deleteTask = (taskIndex) => {
+        dispatch({ type: 'DELETE_TASK', payload: taskIndex});
+    };
+
+    const updateTaskField = (field, value) => {
+        setNewTask({
+            ...newTask,
+            [field]: value
+        })
     }
 
-    const handleDeleteAllTasks = () => {
-        setAllTasks([]);
-    }
+    const deleteAllTasks = () => dispatch({ type: 'DELETE_ALL_TASKS'});
+
     return (
         <>
             <div className='container'>
@@ -44,35 +72,37 @@ const App = () => {
                     <div className='mb-3 d-flex justify-content-between'>
                         <p>Today is {today.toDateString()}</p> 
                         <button className='btn addBtn position-fixed'
-                         onClick={() => setShowTaskInput(true)}>+</button>                       
+                         onClick={openModal}>+
+                        </button>                       
                     </div>
                 </header> 
                 <main>
-                    <div className='d-flex justify-content-center align-items-center'>
-                        {showTaskInput ? (
+                    {
+                        state.isModalOpen ? (
                             <TaskInput
-                              handleAddTask={handleAddTask}
-                              onCancel={() => setShowTaskInput(false)}
-                              initialData={taskToEdit !== null ? allTasks[taskToEdit] : null}
-                              isEditing={taskToEdit !== null}  
+                              isOpen={state.isModalOpen}
+                              onClose={closeModal}
+                              onAddTask={addTask}
+                              newTask={newTask}
+                              onTaskChange={updateTaskField}
+                              isEditing={isEditing}
                             />
                         ) : (
-                            allTasks.length === 0 && (
+                            state.tasks.length === 0 && (
                                 <p style={{ marginTop: '60px'}}>All tasks done. Click the button to add a task.</p>
                             )
-                        )}
-                    </div>
-                    <div>
-                        {allTasks.length > 0 && ( 
-                                <Task                                       
-                                 allTasks={allTasks}
-                                 onEdit={handleEditTask}
-                                 onDelete={handleDeleteTask}
-                                 onDeleteAll={handleDeleteAllTasks} 
-                                />                                  
-                            )
-                        }                                                    
-                    </div>                   
+                        )
+                    } 
+                    {
+                        state.tasks.length > 0 && (
+                            <Task
+                              tasks={state.tasks}
+                              onEditTask={editTask}
+                              onDeleteTask={deleteTask}
+                              onDeleteAllTasks={deleteAllTasks}
+                            />
+                        )
+                    }                 
                 </main>                             
             </div>              
         </>

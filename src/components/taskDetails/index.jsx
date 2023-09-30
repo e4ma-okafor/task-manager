@@ -1,8 +1,8 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react'
 import './task.css'
-import propTypes from 'prop-types'
 
-const Task = ({ allTasks, onEdit, onDelete, onDeleteAll }) => {
+const Task = ({ tasks, onEditTask, onDeleteTask, onDeleteAllTasks }) => {
     const [taskComplete, setTaskComplete] = useState([]);    
 
     const taskCompleted = (taskId) => {
@@ -16,45 +16,44 @@ const Task = ({ allTasks, onEdit, onDelete, onDeleteAll }) => {
         <>
             <div style={{ marginTop: '50px'}} className='d-flex justify-content-between w-50'>
                 <h2>Tasks</h2>
-                <button className='btn deleteTasksBtn' onClick={onDeleteAll}>Delete Tasks</button>
-            </div>
+                <button className='btn deleteTasksBtn' onClick={onDeleteAllTasks}>
+                    Delete Tasks
+                </button>
+            </div>                        
             <div className='task' style={{ marginTop: '40px'}}>                
                 <ul>
                     {
-                        allTasks.map((task, index) => (
+                        tasks.map((task, index) => (
                             <li key={index} style={{ marginBottom: '20px'}}>
                                 <div className='d-flex justify-content-between mb-3'>
                                     <div className='d-flex gap-2'>
                                         <input type="checkbox" 
-                                         checked={taskComplete.includes(index)}
-                                         onChange={() => taskCompleted(index)}
-                                        />
-                                        {taskComplete.includes(index) && <p style={{ color: 'green'}}>Done</p>}
+                                          checked={taskComplete.includes(index)}
+                                          onChange={() => taskCompleted(index)}
+                                        />                                        
+                                        {taskComplete.includes(index) && 
+                                            <p style={{ color: 'green'}}>Done</p>
+                                        }                                                                                                            
                                     </div>
-                                    <p className='date'>Due date: {task.date}</p>                    
-                                </div>                                    
+                                    <p className='date'>Due date: {task.dueDate}</p>                    
+                                </div>  
                                 <div className='mb-3'>
-                                    <h3 className='mb-3'>{task.name}</h3>
-                                    <p>{task.desc}</p>
-                                </div>
+                                    <h3 className='mb-3'>
+                                        {task.name}
+                                    </h3>
+                                    <p>{task.details}</p>
+                                </div>                               
                                 <div className='d-flex justify-content-right gap-4'>
-                                    <button className='btn editBtn' onClick={() => onEdit(index)}>Edit</button>
-                                    <button className='btn' onClick={() => onDelete(index)}>Delete</button>
+                                    <button className='btn editBtn' onClick={() => onEditTask(index, task)}>Edit</button>
+                                    <button className='btn' onClick={() => onDeleteTask(index)}>Delete</button>
                                 </div>                                         
                             </li>
                         ))
                     }                
                 </ul>
-            </div>
+            </div>                    
         </>
     )
-}
-
-Task.propTypes = {
-  allTasks: propTypes.array,
-  onEdit: propTypes.func,
-  onDelete: propTypes.func,
-  onDeleteAll: propTypes.func
 }
 
 export default Task
